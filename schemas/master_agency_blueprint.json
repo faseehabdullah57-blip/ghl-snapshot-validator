@@ -1,0 +1,152 @@
+{
+  "schemaVersion": "3.0.0",
+  "blueprintName": "Master SaaS Agency Snapshot v3",
+  "description": "Canonical GoHighLevel (GHL) sub-account baseline schema enforcing standardized custom fields (with dropdown option validation), sales/onboarding pipelines, segmentation tags, non-empty custom values, and published workflows.",
+  "customFields": [
+    {
+      "name": "Lead Score",
+      "fieldKey": "contact.lead_score",
+      "dataType": "NUMERICAL",
+      "model": "contact"
+    },
+    {
+      "name": "Subscription Tier",
+      "fieldKey": "contact.subscription_tier",
+      "dataType": "SINGLE_OPTIONS",
+      "model": "contact",
+      "options": [
+        "Starter",
+        "Growth",
+        "Enterprise"
+      ]
+    },
+    {
+      "name": "Monthly Budget Range",
+      "fieldKey": "contact.budget_range",
+      "dataType": "SINGLE_OPTIONS",
+      "model": "contact",
+      "options": [
+        "Under $2k/mo",
+        "$2k - $5k/mo",
+        "$5k+/mo"
+      ]
+    },
+    {
+      "name": "Account Manager Notes",
+      "fieldKey": "contact.account_manager_notes",
+      "dataType": "TEXT",
+      "model": "contact"
+    },
+    {
+      "name": "Onboarding Kickoff Date",
+      "fieldKey": "contact.onboarding_kickoff_date",
+      "dataType": "DATE",
+      "model": "contact"
+    },
+    {
+      "name": "Projected MRR",
+      "fieldKey": "opportunity.projected_mrr",
+      "dataType": "NUMERICAL",
+      "model": "opportunity"
+    }
+  ],
+  "pipelines": [
+    {
+      "name": "SaaS Sales & Acquisition Pipeline",
+      "stages": [
+        {
+          "name": "New Inbound Lead",
+          "position": 0
+        },
+        {
+          "name": "Discovery Call Booked",
+          "position": 1
+        },
+        {
+          "name": "Demo Completed",
+          "position": 2
+        },
+        {
+          "name": "Proposal Sent",
+          "position": 3
+        },
+        {
+          "name": "Closed Won",
+          "position": 4
+        }
+      ]
+    },
+    {
+      "name": "Client Onboarding & Fulfillment",
+      "stages": [
+        {
+          "name": "Welcome & Intake Form",
+          "position": 0
+        },
+        {
+          "name": "Snapshot & Tech Setup",
+          "position": 1
+        },
+        {
+          "name": "Automation QA & Testing",
+          "position": 2
+        },
+        {
+          "name": "Go-Live & Handoff",
+          "position": 3
+        }
+      ]
+    }
+  ],
+  "tags": [
+    "Hot Lead",
+    "Disqualified",
+    "Re-Engagement Needed",
+    "Onboarding Complete",
+    "VIP Client"
+  ],
+  "customValues": [
+    {
+      "name": "Agency Calendar Link",
+      "fieldKey": "custom_values.agency_calendar_link",
+      "value": "https://msgsndr.com/widget/booking/agency-discovery",
+      "requireNonEmpty": true
+    },
+    {
+      "name": "Support Email",
+      "fieldKey": "custom_values.support_email",
+      "value": "support@agency-ops.io",
+      "requireNonEmpty": true
+    },
+    {
+      "name": "Twilio Default Sender Number",
+      "fieldKey": "custom_values.twilio_default_sender",
+      "value": "+18005550199",
+      "requireNonEmpty": true
+    },
+    {
+      "name": "Stripe Billing Portal URL",
+      "fieldKey": "custom_values.stripe_billing_portal_url",
+      "value": "https://billing.agency-ops.io/portal",
+      "requireNonEmpty": true
+    }
+  ],
+  "workflows": [
+    {
+      "name": "01. Speed to Lead - Instant SMS",
+      "expectedStatus": "published"
+    },
+    {
+      "name": "02. Appointment Reminder Sequence",
+      "expectedStatus": "published"
+    },
+    {
+      "name": "03. No-Show Re-Engagement Drip",
+      "expectedStatus": "published"
+    },
+    {
+      "name": "04. Post-Onboarding NPS & Review Request",
+      "expectedStatus": "published"
+    }
+  ]
+}

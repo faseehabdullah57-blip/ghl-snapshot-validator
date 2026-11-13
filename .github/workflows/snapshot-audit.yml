@@ -1,0 +1,97 @@
+name: GHL Sub-Account Snapshot Drift Audit
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "schemas/**"
+      - "src/**"
+      - "tests/**"
+      - ".github/workflows/snapshot-audit.yml"
+  pull_request:
+    branches: [main, master]
+  schedule:
+    # Nightly automated multi-location sub-account drift detection at 06:00 UTC
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+    inputs:
+      location_id:
+        description: "Target GoHighLevel Sub-Account Location ID (defaults to GHL_LOCATION_ID secret)"
+        required: false
+        type: string
+      auto_fix:
+        description: "Auto-remediate missing tags, custom fields, and custom values (--auto-fix)"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  unit-test-suite:
+    name: Run Pytest QA Suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Execute Automated Unit & Integration Tests
+        run: pytest -v --tb=short
+
+  snapshot-drift-audit:
+    name: Audit GHL Sub-Accounts Against Master Blueprint
+    needs: unit-test-suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Execute Live or Simulated Batch Snapshot Audit
+        env:
+          GHL_API_KEY: ${{ secrets.GHL_API_KEY }}
+          GHL_LOCATION_ID: ${{ github.event.inputs.location_id || secrets.GHL_LOCATION_ID }}
+          AUTO_FIX_FLAG: ${{ github.event.inputs.auto_fix == 'true' && '--auto-fix' || '' }}
+        run: |
+          if [ -z "$GHL_API_KEY" ] || [ -z "$GHL_LOCATION_ID" ]; then
+            echo "No live GHL secrets configured in environment; running multi-location simulated batch audit..."
+            python -m src.cli.main \
+              --locations-file schemas/sample_locations.json \
+              --mock \
+              --auto-fix \
+              --report-out qa_handoff_report.md || true
+          else
+            echo "Auditing live GoHighLevel Location ID: $GHL_LOCATION_ID"
+            python -m src.cli.main \
+              --location-id "$GHL_LOCATION_ID" \
+              --api-key "$GHL_API_KEY" \
+              --schema-file schemas/master_agency_blueprint.json \
+              --report-out qa_handoff_report.md \
+              $AUTO_FIX_FLAG
+          fi
+
+      - name: Upload Client QA Handoff Report Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ghl-snapshot-qa-handoff-report
+          path: qa_handoff_report.md

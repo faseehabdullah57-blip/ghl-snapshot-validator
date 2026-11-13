@@ -1,0 +1,17 @@
+{
+  "agencyName": "ScaleOps SaaS Agency",
+  "locations": [
+    {
+      "locationId": "loc_apex_dental_001",
+      "name": "Apex Dental Studio (Production)"
+    },
+    {
+      "locationId": "loc_elevate_medspa_002",
+      "name": "Elevate MedSpa & Wellness (Onboarding)"
+    },
+    {
+      "locationId": "loc_summit_roofing_003",
+      "name": "Summit Roofing Group (Staging)"
+    }
+  ]
+}
